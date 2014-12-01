@@ -46,6 +46,9 @@ brickA11= drawpad.create_rectangle(410,60,460,90, fill='cyan')
 brickA12= drawpad.create_rectangle(410,140,460,170, fill='cyan')
 brickA13= drawpad.create_rectangle(480,60,530,90, fill='cyan')
 brickA14= drawpad.create_rectangle(480,140,530,170, fill='cyan')
+direction = 0
+brokenBricks = 0
+lives = 3
 
 class myApp(object):
     def __init__(self, parent):
@@ -58,22 +61,49 @@ class myApp(object):
         
         self.label1 = Label(root, text=self.prompt, width=len(self.prompt), bg='green')
         self.label1.pack()
-
-        self.score = 0
         
-        self.rocketsTxt = Label(root, text=str(self.score), width=len(str(self.score)), bg='green')
-        self.rocketsTxt.pack()
+        self.score = 0
 
+        self.scoreTxt = Label(root, text=str(self.score), width=len(str(self.score)), bg='green')
+        self.scoreTxt.pack()
+       
         drawpad.pack()
         root.bind_all('<Key>', self.key)
         self.animate()
         
     def animate(self):
         global drawpad
+        global ball
+        global direction
+        global lives
+        x1,y1,x2,y2 = drawpad.coords(ball)
+        px1,py1,px2,py2 = drawpad.coords(player)
+        if y1 <= 0:
+            direction = 5
+        elif x1 >= px1 and x2 <= px2 and y2 >= py1 and y2 <= py2:
+            direction = -5
+        elif x1 <= px1 and x2 >= px2 and y2 >= 600:
+            lives = lives - 1
+            canvas.coords(ball,(293,576,307,590))
+        drawpad.move(ball, 0, direction)
+        drawpad.after(5,self.animate)
+        
         
     def key(self,event):
         global drawpad
+        global player
+        global ball
+        global direction
+        x1,y1,x2,y2 = drawpad.coords(ball)
+        if event.char == " ":
+            direction = -5
+        if event.char == "a":
+            if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590:
+                drawpad.move(player,-4,0)
+        if event.char == "d":
+            if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590:
+                drawpad.move(player,4,0)
 
-            
+
 app = myApp(root)
 root.mainloop()
