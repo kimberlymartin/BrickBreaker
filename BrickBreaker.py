@@ -46,10 +46,15 @@ brickA11= drawpad.create_rectangle(410,60,460,90, fill='cyan')
 brickA12= drawpad.create_rectangle(410,140,460,170, fill='cyan')
 brickA13= drawpad.create_rectangle(480,60,530,90, fill='cyan')
 brickA14= drawpad.create_rectangle(480,140,530,170, fill='cyan')
+bricklist = [brick1,brick2,brick3,brick4,brick5,brick6,brick7,brick8,brick9,brick10,brick11,brick12,brick13,brick14,brick15,brick16,brick17,brick18,brick19,brick20,brick21,brick22,brick23,brick24,brickA1,brickA2,brickA3,brickA4,brickA5,brickA6,brickA7,brickA8,brickA9,brickA10,brickA11,brickA12,brickA13,brickA14]
 direction = 0
-brokenBricks = 0
-lives = 3
-
+import random
+randAngle = 0
+angle = 0
+overlap = 0
+listPlace = 0
+length = 0
+brick = 0
 class myApp(object):
     def __init__(self, parent):
         global drawpad
@@ -61,12 +66,12 @@ class myApp(object):
         
         self.label1 = Label(root, text=self.prompt, width=len(self.prompt), bg='green')
         self.label1.pack()
-        
-        self.score = 0
 
-        self.scoreTxt = Label(root, text=str(self.score), width=len(str(self.score)), bg='green')
+        self.score = 0
+        
+        self.scoreTxt = Label(root, text=str(self.score), width=3, bg='green')
         self.scoreTxt.pack()
-       
+
         drawpad.pack()
         root.bind_all('<Key>', self.key)
         self.animate()
@@ -75,17 +80,33 @@ class myApp(object):
         global drawpad
         global ball
         global direction
-        global lives
+        global angle
+        global randAngle
+        global listPlace
+        global brick
         x1,y1,x2,y2 = drawpad.coords(ball)
         px1,py1,px2,py2 = drawpad.coords(player)
         if y1 <= 0:
             direction = 5
-        elif x1 >= px1 and x2 <= px2 and y2 >= py1 and y2 <= py2:
+        elif x1 >= px1 and x2 <= px2 and y2 >= py1:
             direction = -5
-        elif x1 <= px1 and x2 >= px2 and y2 >= 600:
-            lives = lives - 1
-            canvas.coords(ball,(293,576,307,590))
-        drawpad.move(ball, 0, direction)
+            randAngle = random.randint(0,12)
+            angle = randAngle - 6
+        elif x1 <= 0 and y2 <= 600 or x2 >= 600 and y2 <= 600:
+            angle = -angle
+            
+        didWeHit = self.collisionDetect
+        if didWeHit == True:
+            #for x in bricklist:
+            #   if x == brick: 
+            brick = bricklist[listPlace]
+            bx1,by1,bx2,by2 = drawpad.coords(brick)
+            if x1 <= bx1 or x2 >= bx2:
+                angle = -angle
+            if y1 <= by1 or by2 >= y2:
+                direction = -direction
+        
+        drawpad.move(ball, angle, direction)
         drawpad.after(5,self.animate)
         
         
@@ -95,15 +116,34 @@ class myApp(object):
         global ball
         global direction
         x1,y1,x2,y2 = drawpad.coords(ball)
+        px1,py1,px2,py2 = drawpad.coords(player)
         if event.char == " ":
             direction = -5
         if event.char == "a":
-            if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590:
-                drawpad.move(player,-4,0)
+            if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590 and px1 > 0:
+                    drawpad.move(player,-8,0)
         if event.char == "d":
-            if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590:
-                drawpad.move(player,4,0)
-
-
+            if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590 and px2 < 600:
+                    drawpad.move(player,8,0)
+                    
+    def collisionDetect(self):
+        global drawpad
+        global bricklist
+        global direction
+        global angle
+        global overlap
+        global listPlace
+        global length
+        x1,y1,x2,y2 = drawpad.coords(ball)
+        overlap = drawpad.find_overlapping(x1,y1,x2,y2)
+        length = len(overlap)
+        if length > 1: 
+            listPlace = overlap[1] - 3
+            return True
+            self.score = self.score + 5
+            self.scoreTxt.config(text=str(self.score))
+    
+            
+            
 app = myApp(root)
 root.mainloop()
