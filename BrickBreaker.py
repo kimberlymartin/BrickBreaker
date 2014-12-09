@@ -5,8 +5,8 @@
 #Make a continuous score display
 from Tkinter import *
 root = Tk()
-drawpad = Canvas(root, width=600,height=600, background='white')
-player = drawpad.create_rectangle(260,590,340,595, fill = "blue")
+drawpad = Canvas(root, width=600,height=600, background='black')
+player = drawpad.create_rectangle(260,590,340,595, fill = "red")
 ball = drawpad.create_oval(293,576,307,590, fill = "white")
 brick1 = drawpad.create_rectangle(30,20,80,50, fill='green')
 brick2 = drawpad.create_rectangle(30,100,80,130, fill='green')
@@ -146,7 +146,11 @@ class myApp(object):
                     direction = -direction
                 self.score = self.score + 5
                 self.scoreTxt.config(text=str(self.score))
-                drawpad.delete(overlap[1])   
+                if overlap[1] == bricklist[0]:
+                    bricklist[0] = 0
+                    drawpad.delete(overlap[1]) 
+                else:
+                    drawpad.delete(overlap[1])  
                 return True
             
             
