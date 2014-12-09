@@ -86,7 +86,7 @@ class myApp(object):
         global brick
         x1,y1,x2,y2 = drawpad.coords(ball)
         px1,py1,px2,py2 = drawpad.coords(player)
-        if y1 <= 0:
+        if y1 < 0:
             direction = 5
         elif x1 >= px1 and x2 <= px2 and y2 >= py1:
             direction = -5
@@ -95,17 +95,15 @@ class myApp(object):
         elif x1 <= 0 and y2 <= 600 or x2 >= 600 and y2 <= 600:
             angle = -angle
             
-        didWeHit = self.collisionDetect
+        didWeHit = self.collisionDetect()
         if didWeHit == True:
-            #for x in bricklist:
-            #   if x == brick: 
             brick = bricklist[listPlace]
             bx1,by1,bx2,by2 = drawpad.coords(brick)
             if x1 <= bx1 or x2 >= bx2:
                 angle = -angle
             if y1 <= by1 or by2 >= y2:
                 direction = -direction
-        
+                
         drawpad.move(ball, angle, direction)
         drawpad.after(5,self.animate)
         
@@ -121,10 +119,10 @@ class myApp(object):
             direction = -5
         if event.char == "a":
             if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590 and px1 > 0:
-                    drawpad.move(player,-8,0)
+                    drawpad.move(player,-10,0)
         if event.char == "d":
             if x1 != 293 and y1 != 576 and x2 != 307 and y2 != 590 and px2 < 600:
-                    drawpad.move(player,8,0)
+                    drawpad.move(player,10,0)
                     
     def collisionDetect(self):
         global drawpad
@@ -137,12 +135,19 @@ class myApp(object):
         x1,y1,x2,y2 = drawpad.coords(ball)
         overlap = drawpad.find_overlapping(x1,y1,x2,y2)
         length = len(overlap)
-        if length > 1: 
-            listPlace = overlap[1] - 3
-            return True
-            self.score = self.score + 5
-            self.scoreTxt.config(text=str(self.score))
-    
+        if y1 < 550:
+            if length > 1: 
+                #listPlace = overlap[1] - 3
+                #brick = bricklist[listPlace]
+                bx1,by1,bx2,by2 = drawpad.coords(overlap[0])
+                if x1 <= bx1 or x2 >= bx2:
+                    angle = -angle
+                if y1 <= by1 or by2 >= y2:
+                    direction = -direction
+                self.score = self.score + 5
+                self.scoreTxt.config(text=str(self.score))
+                drawpad.delete(overlap[1])   
+                return True
             
             
 app = myApp(root)
